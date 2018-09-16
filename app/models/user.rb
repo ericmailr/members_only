@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-    before_create :remember
+    before_create :create_remember_digest
 
     validates :name, presence: true, length: { maximum: 50 }
     VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
@@ -7,9 +7,28 @@ class User < ApplicationRecord
     validates :password, presence: true, length: { minimum: 6 }
     has_secure_password
 
-    def remember
-       remember_token = SecureRandom.urlsafe_base64
-       self.remember_digest = Digest::SHA1.hexdigest(remember_token.to_s)
+    def User.new_token 
+        SecureRandom.urlsafe_base64
     end
+
+    def User.digest(token)
+        Digest::SHA1.hexdigest(token.to_s)
+    end
+
+    def remember(token)
+        update_attribute(:remember_digest, User.digest(token))
+    end
+
+    def forget
+        update_attribute(:remember_digest, nil)
+    end
+
+    private
+
+        #before_filter
+
+        def create_remember_digest
+            self.remember_digest = User.digest(User.new_token)
+        end
 
 end

@@ -1,0 +1,18 @@
+<h1>All Posts</h1>
+<%= link_to "Create Post", new_post_path %>
+<% if signed_in? %>
+    <%= link_to "Sign Out", signout_path, method: :delete %>
+<% else %>
+    <%= link_to "Sign In", signin_path %>
+<% end %>
+<ul>
+    <% @posts.each do |post| %>
+        <li>
+            <%= post.content %>
+        </li>
+        <% if signed_in? %>
+            -
+            <%= User.find(post.author_id).name %>
+        <% end %>
+    <% end %>
+</ul>
